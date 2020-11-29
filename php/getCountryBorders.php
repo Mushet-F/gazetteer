@@ -2,7 +2,7 @@
 
 	$executionStartTime = microtime(true) / 1000;
 	
-    $url = 'http://localhost/Gazetteer/data/countryBorders.geo.json';
+    $url = 'http://localhost/gazetteer/data/countryBorders.geo.json';
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
