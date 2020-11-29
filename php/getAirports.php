@@ -2,7 +2,13 @@
 
 	$executionStartTime = microtime(true) / 1000;
 	
-    $url = 'http://localhost/gazetteer/data/airports.json';
+    	$uri = $_SERVER['REQUEST_URI'];
+	
+	$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+	
+	$tempurl = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+	$url = str_replace('php/getAirports.php', 'data/airports.json', $tempurl);
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
