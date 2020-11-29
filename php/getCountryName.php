@@ -2,7 +2,7 @@
 
 	$executionStartTime = microtime(true) / 1000;
 	
-    $url = 'http://localhost/Gazetteer/data/countryName.json';
+    $url = 'http://localhost/gazetteer/data/countryName.json';
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
