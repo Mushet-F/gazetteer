@@ -1,6 +1,7 @@
 /* adding in map */
 html, body {
   height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 #map {
@@ -19,16 +20,6 @@ html, body {
   margin: 0;
 }
 
-/* Zoom control */
-.leaflet-left .leaflet-control {
-  margin-left: 50px;
-}
-
-.leaflet-top .leaflet-control-zoom {
-  transform: translateY(50%);
-  margin-left: 75px;
-}
-
 /* Side Nav */
 .side-nav{
   height: 100%;
@@ -39,7 +30,7 @@ html, body {
   right: 0;
   background-color: #615ef1;
   overflow-x: hidden;
-  padding-top: 150px;
+  padding-top: 70px;
   transition: 0.5s;
 }
 
@@ -81,17 +72,13 @@ html, body {
 } 
 
 /* Navbar */
-select {
-  font-size: 1rem;
-  width: 150px;
+.form-control {
+  width: 200px;
 }
 /* 767 */
 @media only screen and (min-width: 768px) {
-  select {
-    font-size: 1rem;
-    width: 200px;
-    margin-left: 20px;
-    margin-right: 20px;
+  .form-control {
+    margin-left: 40px;
   }
 }
 
@@ -115,8 +102,8 @@ select {
   text-transform: lowercase;
 }
 
-/* Preloader */
-#preloader {
+/* loader */
+#loader {
   position: fixed;
   top: 0;
   left: 0;
@@ -124,9 +111,8 @@ select {
   bottom: 0;
   z-index: 9999;
   overflow: hidden;
-  background: #fff;
 }
-#preloader:before {
+#loader:before {
   content: "";
   position: fixed;
   top: calc(50% - 30px);
@@ -136,10 +122,10 @@ select {
   border-radius: 50%;
   width: 60px;
   height: 60px;
-  -webkit-animation: animate-preloader 1s linear infinite;
-  animation: animate-preloader 1s linear infinite;
+  -webkit-animation: animate-loader 1s linear infinite;
+  animation: animate-loader 1s linear infinite;
 }
-@-webkit-keyframes animate-preloader {
+@-webkit-keyframes animate-loader {
   0% {
       -webkit-transform: rotate(0deg);
       transform: rotate(0deg);
@@ -149,7 +135,7 @@ select {
       transform: rotate(360deg);
   }
 }
-@keyframes animate-preloader {
+@keyframes animate-loader {
   0% {
   -webkit-transform: rotate(0deg);
   transform: rotate(0deg);

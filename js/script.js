@@ -1,22 +1,58 @@
-$(window).on('load', function () {
-    if ($('#preloader').length) {
-        $('#preloader').delay(100).fadeOut('slow', function () {
-            $(this).remove();
-        });
-    }
+// **************** Initialize Leaflet, OpenWeather overlay and OSM base layer ************ //
+// OpenWeatherMaps overlay options
+const clouds = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
+    maxZoom: 19,
+    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
 });
 
-// **************** Initialize Leaflet and OSM ************************************ //
-const map = L.map('map', { zoomControl: false }).fitWorld();
+const precipitation = L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
+    maxZoom: 19,
+    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+});
+
+const pressure = L.tileLayer('https://tile.openweathermap.org/map/pressure_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
+    maxZoom: 19,
+    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+});
+
+const temp = L.tileLayer('https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
+    maxZoom: 19,
+    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+});
+
+const wind = L.tileLayer('https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
+    maxZoom: 19,
+    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+});
+
+const weatherMaps = {
+    "Clouds": clouds,
+    "Precipitation": precipitation,
+    "Pressure": pressure,
+    "Temperature": temp,
+    "Wind": wind
+};
+
+// Add osm as base layer
+const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+});
+
+const baseMap = {
+    "OSM": osm
+}
+
+const map = L.map('map', { 
+    zoomControl: false,
+    layers: osm
+},).fitWorld();
+
+L.control.layers(baseMap, weatherMaps, {hideSingleBase: true}).addTo(map);
 
 // Locate current users position
 map.locate({setView: true, maxZoom: 5});
 
-// Add osm as tile layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-}).addTo(map);
 // Zoom and scale
 L.control.zoom({ position: 'topleft' }).addTo(map);
 
@@ -58,6 +94,22 @@ function closeSlideMenu() {
 
 // **************************************************************************************** //
 
+// ********************** loader ********************************************************** //
+let active = true;
+
+function loader() {
+
+    if(active) {
+        document.getElementById("loader").style.display = "none";
+        active = false; 
+    } else {
+        document.getElementById("loader").style.display = "inline";
+        active = true;
+    }
+
+}
+// **************************************************************************************** //
+
 // ********************** Select weather map ********************************************** //
 let myWeatherLayer;
 let initialLayerCount = 0;
@@ -83,20 +135,41 @@ $( "#weather" ).change(function() {
 
 // **************************************************************************************** //
 
-// ******************** Accessing Open Cage *********************************************** //
+// ********************** Custom Markers ************************************************** //
+const LeafIcon = L.Icon.extend({
+    options: {
+        iconSize:     [32, 47],
+        iconAnchor:   [22, 47],
+        popupAnchor:  [-6, -45]
+    }
+});
 
-const getOpenCage = (lat, lng) => {
+let airportIcon = new LeafIcon({iconUrl: 'img/airport.png'});
+let cityIcon = new LeafIcon({iconUrl: 'img/city.png'});
+
+L.icon = function (options) {
+    return new L.Icon(options);
+};
+
+// **************************************************************************************** //
+
+// ******************** Calling getData *************************************************** //
+let init = true;
+const getData = async (lat, lng) => {
+
     return new Promise((resolve, reject) => {
         $.ajax({
-            url: "php/getOpenCage.php",
+            url: "php/getData.php",
             type: 'POST',
             dataType: 'json',
             data: {
                 lat: lat,
                 lng: lng,
+                init: init
             },
             success: function(result) {
-                if (result.status.name == "ok") {       
+                if (result.status.name == "ok") {   
+                    init = false;  
                     resolve(result);
                 }
             },
@@ -105,100 +178,163 @@ const getOpenCage = (lat, lng) => {
             }
         }); 
     });
+
 }
 
 // **************************************************************************************** //
 
-// ********************** Updates panes with selected country  **************************** //
+// ******************** Create the dropdown menu  ***************************************** //
 
-let countryBorders = new L.geoJson();
-countryBorders.addTo(map);
+function createCountryList(dropdown) {
+    
+    let html = "<option value='' disabled selected>Select Country</option>";
 
-function updatePane(alpha) {
-    $.ajax({
-        url: "php/getCountryBorders.php",
-        type: 'POST',
-        dataType: "json",
-    success: function(result) {
-
-        countryBorders.clearLayers();
-
-        $(result.data.features).each(function(key, country) {
-
-            if (country.properties.iso_a2 === alpha) {
-                countryBorders.addData(country);
-            } 
-        });
-
-        map.fitBounds(countryBorders.getBounds(), {padding: [100, 100]});
+    for(let key in dropdown) {
+        html += "<option value=" + dropdown[key]['iso']  + ">" + dropdown[key]['name'] + "</option>"
     }
-    }).error(function() {});
+    document.getElementById("countryList").innerHTML = html;
+    
 }
 
 // **************************************************************************************** //
 
-// ******************** Retrieve the airport data ***************************************** //
+// ********************** worldBorders and event handling   ******************************* //
+function style() {
+    return {
+        fillColor: '#f8e85b',
+        opacity: 0,
+        fillOpacity: 0
+    };
+}
+
+function highlightFeature(e) {
+    let layer = e.target;
+
+    layer.setStyle({
+        fillOpacity: 0.7
+    });
+
+}
+
+function highlightClick(e) {
+    let layer = e.target;
+
+    layer.setStyle({
+        fillColor: '#ffa939',
+        fillOpacity: 0.7
+    });
+
+}
+
+function resetHighlight(e) {
+    geojson.resetStyle(e.target);
+}
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: highlightClick,
+    });
+}
+
+function worldBorders(borders) {
+
+    geojson = L.geoJson(borders, {
+        style: style,
+        onEachFeature: onEachFeature
+    }).addTo(map);
+
+}
+
+// **************************************************************************************** //
+
+// ********************** updatePane of selected country  ********************************* //
+let countryBorders;
+let updateCount = 0;
+
+function polystyle() {
+    return {
+        fillColor: '#ff3434',
+        weight: 2,
+        opacity: 1,
+        color: 'white',  
+        fillOpacity: 0.7
+    };
+}
+
+function updatePane(borders, countryCode) {
+
+    if(updateCount !== 0) {
+        countryBorders.clearLayers();
+    } else {
+        worldBorders(borders);
+    }
+
+    $(borders.features).each(function(key, country) {
+        if (country.properties.iso_a2 === countryCode) {
+            countryBorders = new L.geoJson(country, {
+                style: polystyle
+            });
+            countryBorders.addTo(map);
+        } 
+    });
+
+    map.fitBounds(countryBorders.getBounds(), {padding: [100, 100]});
+    updateCount = 1;
+    
+}
+
+// **************************************************************************************** //
+
+// ******************** Retrieve the airport data and create airport geoJson ************** //
 
 let latArray = [];
 let lngArray = [];
 
-const getAirportGeoJson = (countryName) => {
+const createAirportGeoJson = (airports) => {
+
     let jsonFeatures = [];
-    latArray =  [];
-    lngArray = [];
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: "php/getAirports.php",
-            type: 'POST',
-            dataType: "json",
-        success: function(result) {
+    
+    airports.forEach(function(point){
 
-            result.data.forEach(function(point){
+        let lat = point.lat;
+        let lon = point.lon;
 
-                let lat = point.lat;
-                let lon = point.lon;
+        let feature = {
+            type: 'Feature',
+            properties: point,
+            geometry: {
+                type: 'Point',
+                coordinates: [lon,lat]
+            }
+        };
 
-                if(point.country === countryName && point.type === "Airports" && point.direct_flights > 20 && jsonFeatures.length < 30) {
-                    var feature = {
-                        type: 'Feature',
-                        properties: point,
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [lon,lat]
-                        }
-                    };
-                    jsonFeatures.push(feature);
-
-                    latArray.push(lat);
-                    lngArray.push(lon);
-                }          
-            });
-
-            const geoJson = { type: 'FeatureCollection', features: jsonFeatures };
-            resolve(geoJson);
-
-        }
-        }).error(function(error) {reject(error);});
+        jsonFeatures.push(feature);
     });
+
+    const geoJson = { type: 'FeatureCollection', features: jsonFeatures };
+    return geoJson;
+
 }
+
 
 // **************************************************************************************** //
 
 // ******************** Create weather array ********************************************** //
 
-const getWeatherArray = async () => {
+const createWeatherArray = weather => {
+
     let weatherArray = [];
     let weatherObj = {};
 
-    for(let i = 0; i < latArray.length; i++) {
-
-        const weatherResult = await getWeatherResult(latArray[i], lngArray[i]);
+    for(let i = 0; i < weather.length; i++) {
       
-        let desc = weatherResult['data']['weather'][0]['description'];
-        let temp = weatherResult['data']['main']['temp'];
-        let pressure = weatherResult['data']['main']['pressure'];
-        let humidity = weatherResult['data']['main']['humidity'];
-        let wind = weatherResult['data']['wind']['speed'];
+        let desc = weather[i]['weather'][0]['description'];
+        let temp = weather[i]['main']['temp'];
+        let pressure = weather[i]['main']['pressure'];
+        let humidity = weather[i]['main']['humidity'];
+        let wind = weather[i]['wind']['speed'];
 
         weatherObj = {
             description: desc,
@@ -215,34 +351,7 @@ const getWeatherArray = async () => {
 
 // **************************************************************************************** //
 
-// ********************** Get Open Weather data ******************************************* //
-
-const getWeatherResult = (lat, lng) => {
-    return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: "php/getWeather.php",
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                lat: lat,
-                lng: lng,
-            },
-            success: function(result) {
-                if (result.status.name == "ok") {  
-                    resolve(result);
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.log(errorThrown);
-                reject(errorThrown);
-            }
-        }); 
-    });
-}
-
-// **************************************************************************************** //
-
-// ******************** Add markers for the aiport and with its weather data  ************* //
+// ********* Add markers and popup content for the aiport and weather data  *************** //
     
 let airportLayer;
 let removeAirportLayer = false;
@@ -258,6 +367,9 @@ function addAirportLayer(geoJson, weatherArray) {
     let arrayCount = 0;
     
     airportLayer = new L.geoJson(geoJson, {
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng, {icon: airportIcon});
+        },
         onEachFeature: function (feature, layer) {
             let popupContent = [];
             let airportArray = [];
@@ -312,60 +424,230 @@ function addAirportLayer(geoJson, weatherArray) {
 
 // **************************************************************************************** //
 
-// ********************** getRestCountries to update country info sidebar ***************** //
+// ******************** Retrieve the city data and create airport geoJson ***************** //
 
-function getRestCountries(alpha) {
-    $.ajax({
-    url: "php/getRestCountries.php",
-    type: 'POST',
-    dataType: 'json',
-    data: {
-        alpha: alpha
-    },
-    success: function(result) {
+const createCitiesGeoJson = cities => {
 
-        if (result.status.name == "ok") {
-            
-            let flag = result['data']['flag'];
+    let jsonFeatures = [];
+    let lng;
+    let lat;
 
-            $('#flag').attr('src', flag);
-            $('#country').html(result['data']['name']);
-            $('#nativeName').html(result['data']['nativeName']);
-            $('#capital').html(result['data']['capital']);
-            $('#nativeLang').html(result['data']['languages'][0]['name']);
-            $('#demonym').html(result['data']['demonym']);
-            $('#population').html(result['data']['population']);
-            $('#region').html(result['data']['region']);
-            $('#subregion').html(result['data']['subregion']);
+    cities.forEach(function(point){
 
-        }
+        lng = point.lng;
+        lat = point.lat;
 
-    }
-}).error(function() {});
+        let feature = {
+            type: 'Feature',
+            properties: point,
+            geometry: {
+                type: 'Point',
+                coordinates: [lng,lat]
+            }
+        };
+
+        jsonFeatures.push(feature); 
+
+    });
+
+    const geoJson = { type: 'FeatureCollection', features: jsonFeatures };
+    return geoJson;
+        
 }
 
 // **************************************************************************************** //
 
-// ********************** Intialise current location ************************************** //
+// *********************** attractionsArray ********************************************** //
 
+const createTourismArray = (tourism, countryCode, citiesName) => {
+
+    let tourismObj = {};
+    let tourismArray = [];
+
+    for(let i = 0; i < tourism.length; i++) {
+
+        let cityName;
+        let summary;
+        let landmarks = [];
+        
+        let jump = false;
+        
+        if(tourism[i] !== null) {
+
+            for(key in tourism[i]) {
+                if(key === 'status') {
+                    jump = true;
+                }
+            }
+
+            if(jump) {
+                jump = false;
+                continue;
+            }
+
+            for(let j = 0; j < tourism[i].geonames.length; j++) {
+                if(tourism[i].geonames[j].title === citiesName[i]) {
+                    cityName = tourism[i].geonames[j].title;
+                    summary = tourism[i].geonames[j].summary;
+                }
+    
+                if(tourism[i].geonames[j].feature === 'landmark' && landmarks.length < 3 && tourism[i].geonames[j].countryCode === countryCode) {
+                    landmarks.push(tourism[i].geonames[j].title);
+                }
+            }
+    
+            tourismObj = {
+                city: cityName,
+                summary: summary,
+                landmark1: landmarks[0],
+                landmark2: landmarks[1],
+                landmarks3: landmarks[2]
+            }
+    
+            tourismArray.push(tourismObj);    
+        }
+
+    }
+
+    return tourismArray;
+
+}
+
+// **************************************************************************************** //
+
+// ********* Add markers and popup content for the city and tourism data  ***************** //
+
+let cityLayer;
+let removeCityLayer = false;
+
+function addCityLayer(geoJson, tourismArray) {
+    if (removeCityLayer) {
+        map.removeLayer(cityLayer);
+    }
+
+    removeCityLayer = true;
+
+    let arrayCount = 0;
+    
+    cityLayer = new L.geoJson(geoJson, {
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng, {icon: cityIcon});
+        },
+        onEachFeature: function (feature, layer) {
+            let popupContent = [];
+            let cityArray = [];
+            let addAttractionsArray = [];
+      
+            for (let key in feature.properties) {
+                if(key === 'population') {
+                    cityArray.push(key + ": " + feature.properties[key]);
+                } else if (key === 'name') {
+                    cityArray.unshift(key + ": " + feature.properties[key]);
+                }  
+            }
+
+            for (let key in tourismArray[arrayCount]) {
+                if(key === 'summary') {
+                    addAttractionsArray.push(key + ": " + tourismArray[arrayCount][key]);
+                }
+                if(key.includes('landmark')) {
+                    if(tourismArray[arrayCount][key] !== undefined) {
+                        addAttractionsArray.push("Landmark: " + tourismArray[arrayCount][key]);
+                    }
+                }
+            }
+
+            popupContent = cityArray.concat(addAttractionsArray);
+  
+            popupContent.unshift('<h1>City</h1>')
+            layer.bindPopup(popupContent.join("<p>"));
+
+            arrayCount++
+        }
+    }).addTo(map);
+
+}
+
+// **************************************************************************************** //
+
+// ********************** Update sidebar  ************************************************* //
+
+function updateSidebar(restCountries, currency) {
+
+    const currencyCode = restCountries['currencies'][0]['code'];
+
+    $('#flag').attr('src', restCountries['flag']);
+    $('#country').html(restCountries['name']);
+    $('#nativeName').html(restCountries['nativeName']);
+    $('#capital').html(restCountries['capital']);
+    $('#nativeLang').html(restCountries['languages'][0]['name']);
+    $('#demonym').html(restCountries['demonym']);
+    $('#population').html(restCountries['population']);
+    $('#region').html(restCountries['region']);
+    $('#subregion').html(restCountries['subregion']);
+    $('#currency').html(restCountries['currencies'][0]['name']);
+    $('#currencyCode').html(restCountries['currencies'][0]['code']);
+    $('#exchangeRate').html(currency['rates'][currencyCode]);
+}
+
+
+// **************************************************************************************** //
+
+let countryCoords;
+
+// ********************** Intialise current location ************************************** //
 function geoInit() {
 
     async function success(position) {
-        let latitude  = await position.coords.latitude;
-        let longitude =  await position.coords.longitude;
+        let lat  = await position.coords.latitude;
+        let lng =  await position.coords.longitude;
 
-        const openCage = await getOpenCage(latitude, longitude);
+        const result = await getData(lat, lng);
 
-        const countryName = openCage['data']['results'][0]['components']['country'];
-        const alpha = openCage['data']['results'][0]['components']['ISO_3166-1_alpha-2'];
+        const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
-        updatePane(alpha);
+        // Borders
+        const borders = result.borders;
+        updatePane(borders, countryCode);
 
-        const airportGeoJson =  await getAirportGeoJson(countryName);
-        const weatherArray = await getWeatherArray();
+        // Dropdown menu
+        const dropdown = result.dropdown;
+        createCountryList(dropdown);
+
+        // Country coords 
+        countryCoords = result.coords['ref_country_codes'];
+
+        // Airports and Weather 
+        const airports = result.airports;
+        const airportGeoJson =  createAirportGeoJson(airports);
+
+
+        const weather = result.weather; 
+        const weatherArray = createWeatherArray(weather);
+        
         addAirportLayer(airportGeoJson, weatherArray);
 
-        getRestCountries(alpha);
+        // Cities and Landmarks 
+        const cities = result.cities;
+        const citiesGeoJson =  createCitiesGeoJson(cities);
+
+        let citiesName = [];
+        for (key in citiesGeoJson.features) {
+            citiesName.push(citiesGeoJson.features[key].properties.name);
+        }
+    
+        const tourism = result.tourism;
+        const tourismArray = createTourismArray(tourism, countryCode, citiesName);
+    
+        addCityLayer(citiesGeoJson, tourismArray);
+
+        // Side Bar Information
+        const rest = result.rest;
+        const currency = result.currency;
+
+        updateSidebar(rest, currency);
+
+        loader();
     }
   
     function error() {
@@ -388,60 +670,112 @@ geoInit();
 // *********************** Map clicked **************************************************** //
 
 map.on('click', async function(e){
+
+    loader();
+
     let coord = e.latlng;
-    let latitude = coord.lat;
-    let longitude = coord.lng;
+    let lat = coord.lat;
+    let lng = coord.lng;
+
+    const result = await getData(lat, lng);
+
+    const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
+
+    // Borders
+    const borders = result.borders;
+    updatePane(borders, countryCode);
+
+    // Airports and Weather 
+    const airports = result.airports;
+    const airportGeoJson =  createAirportGeoJson(airports);
+
+    const weather = result.weather; 
+    const weatherArray = createWeatherArray(weather);
     
-    const openCage = await getOpenCage(latitude, longitude);
-
-    const countryName = openCage['data']['results'][0]['components']['country'];
-    const alpha = openCage['data']['results'][0]['components']['ISO_3166-1_alpha-2'];
-
-    updatePane(alpha);
-
-    const airportGeoJson =  await getAirportGeoJson(countryName);
-    const weatherArray = await getWeatherArray();
     addAirportLayer(airportGeoJson, weatherArray);
-    
-    getRestCountries(alpha);
+
+    // Cities and Landmarks 
+    const cities = result.cities;
+    const citiesGeoJson =  createCitiesGeoJson(cities);
+
+    let citiesName = [];
+    for (key in citiesGeoJson.features) {
+        citiesName.push(citiesGeoJson.features[key].properties.name);
+    }
+
+    const tourism = result.tourism;
+
+    const tourismArray = createTourismArray(tourism, countryCode, citiesName);
+
+    addCityLayer(citiesGeoJson, tourismArray);
+
+    // Side Bar Information
+    const rest = result.rest;
+    const currency = result.currency;
+
+    updateSidebar(rest, currency);
+
+    loader();
+
 });
-
-// **************************************************************************************** //
-
-// *********************** Get country name for country select option ********************* // 
-
-const getCountryName = selAlpha => {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: "php/getCountryName.php",
-            type: 'POST',
-            dataType: "json",
-        success: function(result) {
-            result.data.forEach(function(country) {
-                if(country.alpha2 === selAlpha) {
-                    countryName = country.name;
-                    resolve(countryName);
-                }
-            });
-        }
-        }).error(function() {reject(error);});
-    });
-}
 
 // **************************************************************************************** //
 
 // *********************** Country select ************************************************* //
 $('#countryList').change(async function() {
 
-    const selAlpha = $('#countryList').val();
-    const nameOfCountry = await getCountryName(selAlpha);
+    loader();
 
-    updatePane(selAlpha);
+    const alpha = $('#countryList').val();
+    let lat;
+    let lng;
+    
+    for(let i = 0; i < countryCoords.length; i++) {
+        if(countryCoords[i]['alpha2'] === alpha) {
+            lat = countryCoords[i]['latitude'];
+            lng = countryCoords[i]['longitude'];
+            break;
+        }
+    }
 
-    const airportGeoJson =  await getAirportGeoJson(nameOfCountry);
-    const weatherArray = await getWeatherArray();
+    const result = await getData(lat, lng);
 
+    const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
+
+    // Borders
+    const borders = result.borders;
+    updatePane(borders, countryCode);
+
+    // Airports and Weather 
+    const airports = result.airports;
+    const airportGeoJson =  createAirportGeoJson(airports);
+
+    const weather = result.weather; 
+    const weatherArray = createWeatherArray(weather);
+    
     addAirportLayer(airportGeoJson, weatherArray);
-    getRestCountries(selAlpha);
+
+    // Cities and Landmarks 
+    const cities = result.cities;
+    const citiesGeoJson =  createCitiesGeoJson(cities);
+
+    let citiesName = [];
+    for (key in citiesGeoJson.features) {
+        citiesName.push(citiesGeoJson.features[key].properties.name);
+    }
+
+    const tourism = result.tourism;
+    const tourismArray = createTourismArray(tourism, countryCode, citiesName);
+
+    addCityLayer(citiesGeoJson, tourismArray);
+
+    // Side Bar Information
+    const rest = result.rest;
+    const currency = result.currency;
+
+    updateSidebar(rest, currency);
+
+    loader();
+
 });
 // **************************************************************************************** //
