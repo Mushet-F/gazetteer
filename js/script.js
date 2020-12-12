@@ -1,3 +1,6 @@
+// changes
+// cddjscsdocdps
+
 // **************** Initialize Leaflet, OpenWeather overlay and OSM base layer ************ //
 // OpenWeatherMaps overlay options
 const clouds = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
