@@ -1,6 +1,3 @@
-// changes
-// cddjscsdocdps
-
 // **************** Initialize Leaflet, OpenWeather overlay and OSM base layer ************ //
 // OpenWeatherMaps overlay options
 const clouds = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
@@ -71,7 +68,7 @@ L.HamburgerControl = L.Control.extend({
     onAdd: function () {
         let container = L.DomUtil.create('div', 'infobtn');
         let button = L.DomUtil.create('a', '', container);
-        button.innerHTML = '<i class="fas fa-info-circle"></i>';
+        button.innerHTML = '<i data-toggle="modal" data-target="#staticBackdrop" class="fas fa-info-circle"></i>';
         L.DomEvent.disableClickPropagation(button);
         L.DomEvent.on(button, 'click', this._click);
 
@@ -80,7 +77,7 @@ L.HamburgerControl = L.Control.extend({
         return container;
     },
     _click : function () {
-        document.getElementById('side-menu').style.width='300px';
+
     }
 });
 

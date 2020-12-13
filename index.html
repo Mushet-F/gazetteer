@@ -24,37 +24,48 @@
   </head>
   <body>
     <div class="box">
+      <!-- Navbar -->
       <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-        <a class="navbar-brand"><i class="fas fa-plane"></i>Gazetteer</a>
+        <a class="navbar-brand"><i class="fas fa-plane"></i> Gazetteer</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-          <span class="navbar-toggler-icon"></span>
+          <!-- <span class="navbar-toggler-icon"></span> -->
+          <i class="fas fa-bars"></i>
         </button>
-        <div class="collapse navbar-collapse" id="collapsibleNavbar">
-          <select class="form-control" id="countryList" name="countryList">
+        <div class="collapse navbar-collapse select-div" id="collapsibleNavbar">
+          <select class="form-control custom-select" id="countryList" name="countryList">
           </select> 
         </div>  
+
       </nav>
 
-      <div id="side-menu" class="side-nav">
-        <a href="#" class="btn-close" id="btn-close" onclick="closeSlideMenu()">&times;</a>
-        <div id="countryInfo">
-          <div id="imgContainer">
-            <img id="flag" src="" alt="flag">
+      <!-- Modal -->
+      <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="flag" id="flag" src="" alt="flag">
+            </div>
+            <div class="modal-body">
+              <p>Country: <span id="country"></span></p>
+              <p>Native Name: <span id="nativeName"></span> </p>
+              <p>Native Language: <span id="nativeLang"></span></p>
+              <p>Demonym: <span id="demonym"></span></p>
+              <p>Capital: <span id="capital"></span></p>
+              <p>Population: <span id="population"></span></p>
+              <p>Region: <span id="region"></span></p>
+              <p>Subregion: <span id="subregion"></span></p>
+              <p>Currency: <span id="currency"></span></p>
+              <p>Currency Code: <span id="currencyCode"></span></p>
+              <p>Exchange Rate (USD): <span id="exchangeRate"></span></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
           </div>
-          <p>Country: <span id="country"></span></p>
-          <p>Native Name: <span id="nativeName"></span> </p>
-          <p>Native Language: <span id="nativeLang"></span></p>
-          <p>Demonym: <span id="demonym"></span></p>
-          <p>Capital: <span id="capital"></span></p>
-          <p>Population: <span id="population"></span></p>
-          <p>Region: <span id="region"></span></p>
-          <p>Subregion: <span id="subregion"></span></p>
-          <p>Currency: <span id="currency"></span></p>
-          <p>Currency Code: <span id="currencyCode"></span></p>
-          <p>Exchange Rate (USD): <span id="exchangeRate"></span></p>
         </div>
       </div>
 
+      <!-- Map -->
       <div class="row content">
         <div class='custom-popup' id="map"></div>
       </div>

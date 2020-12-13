@@ -21,55 +21,14 @@ html, body {
 }
 
 /* Side Nav */
-.side-nav{
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1001;
-  top: 0;
-  right: 0;
-  background-color: #615ef1;
-  overflow-x: hidden;
-  padding-top: 70px;
-  transition: 0.5s;
-}
+.flag {
+  max-width: 80%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 
-.side-nav p {
-  color: #fff;
-  padding-left: 5px;
 }
-
-#imgContainer {
-  padding: 25px;
-  height: 200px;
-}
-
-.side-nav img {
-  width: 250px;
-  height: 150px;
-  object-fit: cover;
-}
-
-.side-nav a {
-  padding: 10px 10px 10px 30px;
-  text-decoration: none;
-  font-size:22px;
-  color:#ccc;
-  display:block;
-  transition:0.3s;
-}
-
-.side-nav a:hover{
-  color:#fff;
-}
-
-.side-nav .btn-close{
-  position: absolute;
-  top:0;
-  right:22px;
-  font-size:36px;
-  margin-left: 50px;
-} 
 
 /* Navbar */
 .form-control {
@@ -144,4 +103,64 @@ html, body {
   -webkit-transform: rotate(360deg);
   transform: rotate(360deg);
   }
+}
+
+/* Select Dropdown */
+/* The container must be positioned relative: */
+.custom-select {
+  background-color: #45A292;
+  color: white;
+  border: white;
+}
+
+.bg-dark {
+  background-color: #0B0C10 !important;
+}
+
+.navbar-dark .navbar-brand {
+  color: #66FCF1;
+}
+
+.fa-bars {
+  color: #66FCF1;
+}
+
+select > option {
+  background-color: #45A292;
+  color: white;
+  border: white;
+}
+
+.form-control:focus {
+  background-color: #45A292;
+  color: white;
+  border: white;
+}
+
+.fa-info-circle{
+  color: #45A292;
+}
+
+/* Modal */
+.modal-header {
+  background-color: #45A292;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-body {
+  background-color: #45A292;
+}
+
+.modal-footer {
+  background-color: #45A292;
+}
+
+.modal-body p {
+  color: #fff;
+}
+
+.btn-secondary {
+  color: #fff;
+  background-color: #0B0C10;
+  border-color: #0B0C10;
 }
