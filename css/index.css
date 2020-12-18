@@ -43,8 +43,8 @@ html, body {
 
 /* Popup Content  */
 .custom-popup .leaflet-popup-content-wrapper {
-  background:#615ef1;
-  color:#fff;
+  background: #1F2733;
+  color: #66FCF1;
   text-transform: capitalize;
 }
 
@@ -55,6 +55,7 @@ html, body {
 
 .custom-popup .leaflet-popup-content-wrapper p{
   margin: 1px 0;
+  color: #FFF;
 }
 
 .custom-popup .leaflet-popup-content-wrapper p span{
@@ -163,4 +164,42 @@ select > option {
   color: #fff;
   background-color: #0B0C10;
   border-color: #0B0C10;
+}
+
+.temp {
+  margin: auto;
+  padding-left: 0px;
+}
+
+.weather-desc {
+  text-transform: capitalize;
+  margin: auto;
+}
+
+.weather-left {
+  padding-left: 5px;
+  padding-right: 25px;
+}
+
+h1 {
+  color: #66FCF1;
+}
+
+hr {
+  border-top: 1px solid #fff;
+}
+
+.popupimg {
+  width: 200px;
+  height: 200px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* Photos */
+.infopop h4 {
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  margin: 0 0 0px;
+  color: #777;
 }

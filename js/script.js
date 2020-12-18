@@ -83,14 +83,7 @@ L.HamburgerControl = L.Control.extend({
 
 new L.HamburgerControl().addTo(map);
 
-$('.infobtn').css({ 'font-size' : '5rem', 'color' : '#222153'});
-
-function openSlideMenu() {
-	document.getElementById('side-menu').style.width='300px';
-}
-function closeSlideMenu() {
-	document.getElementById('side-menu').style.width='0';
-}
+$('.infobtn').css({ 'font-size' : '5rem'});
 
 // **************************************************************************************** //
 
@@ -146,6 +139,7 @@ const LeafIcon = L.Icon.extend({
 
 let airportIcon = new LeafIcon({iconUrl: 'img/airport.png'});
 let cityIcon = new LeafIcon({iconUrl: 'img/city.png'});
+let landmarkIcon = new LeafIcon({iconUrl: 'img/landmark.png'});
 
 L.icon = function (options) {
     return new L.Icon(options);
@@ -201,7 +195,7 @@ function createCountryList(dropdown) {
 // ********************** worldBorders and event handling   ******************************* //
 function style() {
     return {
-        fillColor: '#f8e85b',
+        fillColor: '#45A292',
         opacity: 0,
         fillOpacity: 0
     };
@@ -220,8 +214,8 @@ function highlightClick(e) {
     let layer = e.target;
 
     layer.setStyle({
-        fillColor: '#ffa939',
-        fillOpacity: 0.7
+        fillColor: '#45A292',
+        fillOpacity: 0.5
     });
 
 }
@@ -255,11 +249,11 @@ let updateCount = 0;
 
 function polystyle() {
     return {
-        fillColor: '#ff3434',
+        fillColor: '#66FCF1 ',
         weight: 2,
         opacity: 1,
-        color: 'white',  
-        fillOpacity: 0.7
+        color: '#0B0C10',  
+        fillOpacity: 0.2
     };
 }
 
@@ -424,7 +418,7 @@ function addAirportLayer(geoJson, weatherArray) {
 
 // **************************************************************************************** //
 
-// ******************** Retrieve the city data and create airport geoJson ***************** //
+// ******************** Retrieve the city data and create city geoJson ***************** //
 
 const createCitiesGeoJson = cities => {
 
@@ -521,6 +515,7 @@ let cityLayer;
 let removeCityLayer = false;
 
 function addCityLayer(geoJson, tourismArray) {
+
     if (removeCityLayer) {
         map.removeLayer(cityLayer);
     }
@@ -559,7 +554,7 @@ function addCityLayer(geoJson, tourismArray) {
 
             popupContent = cityArray.concat(addAttractionsArray);
   
-            popupContent.unshift('<h1>City</h1>')
+            popupContent.unshift('<h1>City</h1>');
             layer.bindPopup(popupContent.join("<p>"));
 
             arrayCount++
@@ -570,12 +565,125 @@ function addCityLayer(geoJson, tourismArray) {
 
 // **************************************************************************************** //
 
+// ******************** Retrieve the landmarks data and create landmarks geoJson ********** //
+
+const createLandmarksGeoJson = (landmarks, countryCode) => {
+
+    let jsonFeatures = [];
+    let lng;
+    let lat;
+
+    landmarks.forEach(function(point){
+
+        if(point['businesses'] !== undefined) {
+
+            for(let i = 0; i < point['businesses'].length; i++) {
+
+                if(point['businesses'][i]['location']['country'] === countryCode) {
+                    
+                    lat = point['businesses'][i]['coordinates']['latitude'];
+                    lng = point['businesses'][i]['coordinates']['longitude'];
+            
+                    let feature = {
+                        type: 'Feature',
+                        properties: point['businesses'][i],
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [lng,lat]
+                        }
+                    };
+            
+                    jsonFeatures.push(feature);
+
+                }
+                
+            }
+        }
+
+    });
+
+    const geoJson = { type: 'FeatureCollection', features: jsonFeatures };
+    return geoJson;
+        
+}
+
+// **************************************************************************************** //
+
+// ********* Star ratings for landmarks popup content  ************************************ //
+
+const starRatings = rating => {
+    if (rating === 0) {
+        return "";
+    } else if(rating === 0.5) {
+        return "<i class='fas fa-star-half'></i>";
+    } else if(rating === 1) {
+        return "<i class='fas fa-star'></i>";
+    } else if(rating === 1.5) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star-half'></i>";
+    } else if(rating === 2) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i>";
+    } else if(rating === 2.5) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star-half'></i>";
+    } else if(rating === 3) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i>";
+    } else if(rating === 3.5) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star-half'></i>";
+    } else if(rating === 4) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i>";
+    } else if(rating === 4.5) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star-half'></i>";
+    } else if(rating === 5) {
+        return "<i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i><i class='fas fa-star'></i>";
+    }
+
+}
+
+// **************************************************************************************** //
+
+// ********* Add markers and popup content for the landmarks ****************************** //
+
+let landmarkLayer;
+let removeLandmarkLayer = false;
+
+function addLandmarksLayer(geoJson) {
+    if (removeLandmarkLayer) {
+        map.removeLayer(landmarkLayer);
+    }
+
+    removeLandmarkLayer = true;
+    
+    landmarkLayer = new L.geoJson(geoJson, {
+        pointToLayer: function (feature, latlng) {
+            return L.marker(latlng, {icon: landmarkIcon});
+        },
+        onEachFeature: function (feature, layer) {
+            let popupContent = [];
+            popupContent.push(feature.properties['name']);
+            popupContent.push("<img class='popupimg' src='" + feature.properties['image_url'] + "'/>");
+            popupContent.push("Category: " + feature.properties['categories'][0]['title']);
+            const rating = starRatings(feature.properties['rating']);
+            popupContent.push("Rating: " + rating);
+            popupContent.push("Review Count: " + feature.properties['review_count']);
+            popupContent.push("Address: ");
+            popupContent.push(feature.properties['location']['display_address'][0]);
+            popupContent.push(feature.properties['location']['display_address'][1]);
+
+            popupContent.unshift('<h1>Landmark</h1>');
+
+            layer.bindPopup(popupContent.join("<p>"));
+
+        }
+    }).addTo(map);
+
+}
+
+// **************************************************************************************** //
+
 // ********************** Update sidebar  ************************************************* //
 
-function updateSidebar(restCountries, currency) {
+function updateModal(restCountries, currency, forecast) {
 
-    const currencyCode = restCountries['currencies'][0]['code'];
-
+    // country details
     $('#flag').attr('src', restCountries['flag']);
     $('#country').html(restCountries['name']);
     $('#nativeName').html(restCountries['nativeName']);
@@ -585,9 +693,58 @@ function updateSidebar(restCountries, currency) {
     $('#population').html(restCountries['population']);
     $('#region').html(restCountries['region']);
     $('#subregion').html(restCountries['subregion']);
+
+    // currency
+    const currencyCode = restCountries['currencies'][0]['code'];
+
     $('#currency').html(restCountries['currencies'][0]['name']);
     $('#currencyCode').html(restCountries['currencies'][0]['code']);
+    $('#currencySymbol').html(restCountries['currencies'][0]['symbol']);
     $('#exchangeRate').html(currency['rates'][currencyCode]);
+
+    // weather forecast 
+    const date1 = new Date(forecast['daily'][0]['dt'] * 1000);
+    const date2 = new Date(forecast['daily'][1]['dt'] * 1000);
+    const date3 = new Date(forecast['daily'][2]['dt'] * 1000);
+
+    const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const day1 = date1.getDay();
+    const day2 = date2.getDay();
+    const day3 = date3.getDay();
+
+    const icon1 = forecast['daily'][0]['weather'][0]['icon'];  
+    const iconSrc1 = "http://openweathermap.org/img/wn/" + icon1 +"@2x.png";
+
+    const icon2 = forecast['daily'][1]['weather'][0]['icon'];  
+    const iconSrc2 = "http://openweathermap.org/img/wn/" + icon2 +"@2x.png";
+
+    const icon3 = forecast['daily'][2]['weather'][0]['icon'];  
+    const iconSrc3 = "http://openweathermap.org/img/wn/" + icon3 +"@2x.png";
+
+    $('#weatherCapital').html(restCountries['capital']);
+
+    $('#day1').html(week[day1]);
+    $('#number1').html(date1.getDate());
+    $('#maxTemp1').html(forecast['daily'][0]['temp']['max']);
+    $('#minTemp1').html(forecast['daily'][0]['temp']['min']);
+    $('#weatherIcon1').attr('src', iconSrc1);
+    $('#weatherDesc1').html(forecast['daily'][0]['weather'][0]['description']);
+
+    $('#day2').html(week[day2]);
+    $('#number2').html(date2.getDate());
+    $('#maxTemp2').html(forecast['daily'][1]['temp']['max']);
+    $('#minTemp2').html(forecast['daily'][1]['temp']['min']);
+    $('#weatherIcon2').attr('src', iconSrc2);
+    $('#weatherDesc2').html(forecast['daily'][1]['weather'][0]['description']);
+
+    $('#day3').html(week[day3]);
+    $('#number3').html(date3.getDate());
+    $('#maxTemp3').html(forecast['daily'][2]['temp']['max']);
+    $('#minTemp3').html(forecast['daily'][2]['temp']['min']);
+    $('#weatherIcon3').attr('src', iconSrc3);
+    $('#weatherDesc3').html(forecast['daily'][2]['weather'][0]['description']);
+
 }
 
 
@@ -603,6 +760,7 @@ function geoInit() {
         let lng =  await position.coords.longitude;
 
         const result = await getData(lat, lng);
+        console.log(result);
 
         const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
@@ -615,19 +773,18 @@ function geoInit() {
         createCountryList(dropdown);
 
         // Country coords 
-        countryCoords = result.coords['ref_country_codes'];
+        countryCoords = result.coords;
 
         // Airports and Weather 
         const airports = result.airports;
         const airportGeoJson =  createAirportGeoJson(airports);
-
 
         const weather = result.weather; 
         const weatherArray = createWeatherArray(weather);
         
         addAirportLayer(airportGeoJson, weatherArray);
 
-        // Cities and Landmarks 
+        // Cities and tourism details 
         const cities = result.cities;
         const citiesGeoJson =  createCitiesGeoJson(cities);
 
@@ -641,11 +798,21 @@ function geoInit() {
     
         addCityLayer(citiesGeoJson, tourismArray);
 
-        // Side Bar Information
+        // Landmarks
+        const landmarks = result.landmarks;
+        const landmarksGeoJson = createLandmarksGeoJson(landmarks, countryCode);
+
+        addLandmarksLayer(landmarksGeoJson);
+
+        // Modal Information
         const rest = result.rest;
         const currency = result.currency;
+        const forecast = result.forecast;
 
-        updateSidebar(rest, currency);
+        updateModal(rest, currency, forecast);
+
+        // Photos
+
 
         loader();
     }
@@ -678,7 +845,7 @@ map.on('click', async function(e){
     let lng = coord.lng;
 
     const result = await getData(lat, lng);
-
+    console.log(result);
     const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
     // Borders
@@ -704,16 +871,22 @@ map.on('click', async function(e){
     }
 
     const tourism = result.tourism;
-
     const tourismArray = createTourismArray(tourism, countryCode, citiesName);
 
     addCityLayer(citiesGeoJson, tourismArray);
 
-    // Side Bar Information
+    // Landmarks
+    const landmarks = result.landmarks;
+    const landmarksGeoJson = createLandmarksGeoJson(landmarks, countryCode);
+
+    addLandmarksLayer(landmarksGeoJson);
+    
+    // Modal Information
     const rest = result.rest;
     const currency = result.currency;
+    const forecast = result.forecast;
 
-    updateSidebar(rest, currency);
+    updateModal(rest, currency, forecast);
 
     loader();
 
@@ -731,14 +904,15 @@ $('#countryList').change(async function() {
     let lng;
     
     for(let i = 0; i < countryCoords.length; i++) {
-        if(countryCoords[i]['alpha2'] === alpha) {
-            lat = countryCoords[i]['latitude'];
-            lng = countryCoords[i]['longitude'];
+        if(countryCoords[i]['CountryCode'] === alpha) {
+            lat = countryCoords[i]['CapitalLatitude'];
+            lng = countryCoords[i]['CapitalLongitude'];
             break;
         }
     }
 
     const result = await getData(lat, lng);
+    console.log(result);
 
     const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
@@ -769,11 +943,18 @@ $('#countryList').change(async function() {
 
     addCityLayer(citiesGeoJson, tourismArray);
 
-    // Side Bar Information
+    // Landmarks
+    const landmarks = result.landmarks;
+    const landmarksGeoJson = createLandmarksGeoJson(landmarks, countryCode);
+
+    addLandmarksLayer(landmarksGeoJson);
+    
+    // Modal Information
     const rest = result.rest;
     const currency = result.currency;
+    const forecast = result.forecast;
 
-    updateSidebar(rest, currency);
+    updateModal(rest, currency, forecast);
 
     loader();
 

@@ -28,7 +28,6 @@
       <nav class="navbar navbar-expand-md bg-dark navbar-dark">
         <a class="navbar-brand"><i class="fas fa-plane"></i> Gazetteer</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-          <!-- <span class="navbar-toggler-icon"></span> -->
           <i class="fas fa-bars"></i>
         </button>
         <div class="collapse navbar-collapse select-div" id="collapsibleNavbar">
@@ -46,7 +45,8 @@
               <img class="flag" id="flag" src="" alt="flag">
             </div>
             <div class="modal-body">
-              <p>Country: <span id="country"></span></p>
+              <h1>Country Details</h1>
+              <p>Name: <span id="country"></span></p>
               <p>Native Name: <span id="nativeName"></span> </p>
               <p>Native Language: <span id="nativeLang"></span></p>
               <p>Demonym: <span id="demonym"></span></p>
@@ -54,9 +54,86 @@
               <p>Population: <span id="population"></span></p>
               <p>Region: <span id="region"></span></p>
               <p>Subregion: <span id="subregion"></span></p>
+              <hr>
+              <h1>Currency</h1>
               <p>Currency: <span id="currency"></span></p>
               <p>Currency Code: <span id="currencyCode"></span></p>
+              <p>Currency Symbol: <span id="currencySymbol"></span></p>
               <p>Exchange Rate (USD): <span id="exchangeRate"></span></p>
+              <hr>
+              <h1>Weather Forecast</h1>
+              <p><span id="weatherCapital"></span></p>
+              <div class="row">
+                <div class="col-12">
+                  <p><span id="day1"></span> <span id="number1"></span>th</p>
+                  <div class="row">
+                    <div class="col-6 border-right weather-left">
+                      <div class="row">
+                        <div class="col-8">
+                          <img src="" id="weatherIcon1" alt="Weather icon">
+                        </div>
+                        <div class="col-4 temp">
+                          <div>
+                            <p><span id="maxTemp1"></span>°C</p>
+                          </div>
+                          <div>
+                            <p><span id="minTemp1"></span>°C</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6 weather-desc">
+                      <p><span id="weatherDesc1"></span></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <p><span id="day2"></span> <span id="number2"></span>th</p>
+                  <div class="row">
+                    <div class="col-6 border-right weather-left">
+                      <div class="row">
+                        <div class="col-8">
+                          <img src="" id="weatherIcon2" alt="Weather icon">
+                        </div>
+                        <div class="col-4 temp">
+                          <div>
+                            <p><span id="maxTemp2"></span>°C</p>
+                          </div>
+                          <div>
+                            <p><span id="minTemp2"></span>°C</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6 weather-desc">
+                      <p><span id="weatherDesc2"></span></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <p><span id="day3"></span> <span id="number3"></span>th</p>
+                  <div class="row">
+                    <div class="col-6 border-right weather-left">
+                      <div class="row">
+                        <div class="col-8">
+                          <img src="" id="weatherIcon3" alt="Weather icon">
+                        </div>
+                        <div class="col-4 temp">
+                          <div>
+                            <p><span id="maxTemp3"></span>°C</p>
+                          </div>
+                          <div>
+                            <p><span id="minTemp3"></span>°C</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6 weather-desc">
+                      <p><span id="weatherDesc3"></span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -79,6 +156,7 @@
     <script type="application/javascript" src="vendors/bootstrap/js/bootstrap.min.js"></script>
     <!-- Javascript -->
     <script type="application/javascript" src="js/script.js"></script>
+
   </body>
 </html>
 

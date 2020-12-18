@@ -2,7 +2,9 @@
 
     $executionStartTime = microtime(true) / 1000;
     
+    // open cage 
     $url = 'https://api.opencagedata.com/geocode/v1/json?q=' . $_REQUEST['lat'] .'+' . $_REQUEST['lng'] . '&key=6f61d5f529294626a86159dd70c53f93';
+    // $url = 'https://api.opencagedata.com/geocode/v1/json?q=53.3+-6.2&key=6f61d5f529294626a86159dd70c53f93';
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -13,7 +15,6 @@
 
     curl_close($ch);
 
-    // open cage 
     $opencage = json_decode($result,true);	
 
     // countryName and alpha created
@@ -27,6 +28,7 @@
 
     // initialise
     $init = $_POST['init'];
+    // $init = 'true';
 
     if($init === 'true') {
         // dropdown menu	
@@ -43,15 +45,154 @@
         }
         
         usort($dropdown, "cmp");
-
-        $output['dropdown'] = $dropdown;
-        
-        // lat and lng coords for selected dropdown country
-        $result = file_get_contents(__DIR__ . '/../data/countryCoords.json');
-
-        $coords = json_decode($result,true);
     
     }
+
+    // lat and lng coords for selected dropdown country
+    $result = file_get_contents(__DIR__ . '/../data/countryCoords.json');
+
+    $coords = json_decode($result,true);
+
+    // cities 
+    $url = 'http://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_URL,$url);
+
+    $result=curl_exec($ch);
+
+    curl_close($ch);
+
+    $cities = json_decode($result,true);
+
+    $citiesArray = [];
+
+    foreach ($cities['geonames'] as $city) {
+        if($city['fcodeName'] === 'capital of a political entity' || $city['fcodeName'] === 'seat of a first-order administrative division' || $city['fcodeName'] === 'seat of a second-order administrative division') {
+            $citiesArray[] = $city;
+        }
+    }
+
+    // tourism
+    $tourismUrls = [];
+    for($i = 0; $i < count($citiesArray); $i++) {
+        $tourismUrl = 'http://api.geonames.org/wikipediaSearchJSON?formatted=true&q=' . $citiesArray[$i]['name'] . '&maxRows=20&username=mushetf&style=full';
+        $tourismUrls[] = $tourismUrl;
+    }
+
+    $urlCount = count($tourismUrls);
+
+    $curlArr = array();
+    $master = curl_multi_init();
+
+    for($i = 0; $i < $urlCount; $i++)
+    {
+        $url = $tourismUrls[$i];
+        $curlArr[$i] = curl_init($url);
+        curl_setopt($curlArr[$i], CURLOPT_RETURNTRANSFER, true);
+        curl_multi_add_handle($master, $curlArr[$i]);
+    }
+
+    do {
+        curl_multi_exec($master, $running);
+        curl_multi_select($master);
+    } while ($running > 0);
+
+    for($i = 0; $i < $urlCount; $i++)
+    {
+        $tourismResults[] = curl_multi_getcontent  ( $curlArr[$i]  );
+    }
+    
+    $tourism = [];
+    for($i = 0; $i < $urlCount; $i++) {
+        ${"variable$i"} = json_decode($tourismResults[$i], true);
+        $tourism[] = ${"variable$i"};
+    }   
+    
+    // landmarks
+    $landmarksCoordsArray = [];
+    
+    for($i = 0; $i < count($citiesArray); $i++) {
+
+        $landmarksCoordsArray[] = (object) [
+            "lat" => $citiesArray[$i]['lat'],
+            "lng" => $citiesArray[$i]['lng']
+        ];
+
+    }
+
+    $landmarksUrls = [];
+
+    for($i = 0; $i < count($landmarksCoordsArray); $i++) {
+        $landmarksCoords = [];
+        foreach($landmarksCoordsArray[$i] as $coord) {
+            $landmarksCoords[] = $coord;
+        }
+        $landmarkUrl = 'https://api.yelp.com/v3/businesses/search?latitude=' . $landmarksCoords[0] . '&longitude=' . $landmarksCoords[1] . '&limit=3&sort_by=review_count&categories=landmarks,museums,theater,stadiumsarenas';
+        $landmarksUrls[] = $landmarkUrl;
+    }
+
+    $landmarksUrls1 = array_slice($landmarksUrls, 0, 4);  
+    $landmarksUrls2 = array_slice($landmarksUrls, 4);  
+    
+    $landmarks = [];
+
+    // two request to yelp to avoid request per second max limit
+    function yelpApi($yelpUrls) {
+        $postData = "grant_type=client_credentials&".
+        "client_id=NuJ4aLs-WsWbFw9AfLSISQ".
+        "client_secret=Z2EWA72rUsdK6FkK9ImqmZ5gTgEoI0HxRuBZiNtPpUaoGQUGDsO_2doUmnhpFQ2-ekjRqyPVV2PdR-AhJxQgHMpgsmVYOV9pBhEIgDbhLYCcrXUOKT_HvBJ-axNyX3Yx";
+
+        $curlArr = array();
+        $master = curl_multi_init();
+
+        for($i = 0; $i < count($yelpUrls); $i++)
+        {
+            $url = $yelpUrls[$i];
+            $curlArr[$i] = curl_init($url);
+            curl_setopt($curlArr[$i],CURLOPT_URL, "https://api.yelp.com/oauth2/token");
+            curl_setopt($curlArr[$i],CURLOPT_POST, TRUE);
+            curl_setopt($curlArr[$i],CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($curlArr[$i], CURLOPT_RETURNTRANSFER, true);
+
+            curl_setopt_array($curlArr[$i], array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization: Bearer Z2EWA72rUsdK6FkK9ImqmZ5gTgEoI0HxRuBZiNtPpUaoGQUGDsO_2doUmnhpFQ2-ekjRqyPVV2PdR-AhJxQgHMpgsmVYOV9pBhEIgDbhLYCcrXUOKT_HvBJ-axNyX3Yx"
+                ),
+            ));
+
+            curl_multi_add_handle($master, $curlArr[$i]);
+
+        }
+
+        do {
+            curl_multi_exec($master, $running);
+            curl_multi_select($master);
+        } while ($running > 0);
+
+        for($i = 0; $i < count($yelpUrls); $i++)
+        {
+            $landmarksResults[] = curl_multi_getcontent  ( $curlArr[$i]  );
+        }
+        
+        for($i = 0; $i < count($yelpUrls); $i++) {
+            ${"variable$i"} = json_decode($landmarksResults[$i], true);
+            $landmarks[] = ${"variable$i"};
+        }   
+        return $landmarks;
+    }
+
+    // first yelp request (1 of 2)
+    $landmarks1 = yelpApi($landmarksUrls1);
 
     // airports 
     $result = file_get_contents(__DIR__ . '/../data/airports.json');
@@ -110,64 +251,6 @@
         $weather[] = ${"variable$i"};
     }    
 
-    // cities 
-    $url = 'http://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
-    
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_URL,$url);
-
-	$result=curl_exec($ch);
-
-    curl_close($ch);
-
-    $cities = json_decode($result,true);
-
-    $citiesArray = [];
-
-    foreach ($cities['geonames'] as $city) {
-        if($city['fcodeName'] === 'capital of a political entity' || $city['fcodeName'] === 'seat of a first-order administrative division' || $city['fcodeName'] === 'seat of a second-order administrative division') {
-            $citiesArray[] = $city;
-        }
-    }
-
-    // tourism
-    $tourismUrls = [];
-    for($i = 0; $i < count($citiesArray); $i++) {
-        $tourismUrl = 'http://api.geonames.org/wikipediaSearchJSON?formatted=true&q=' . $citiesArray[$i]['name'] . '&maxRows=20&username=mushetf&style=full';
-        $tourismUrls[] = $tourismUrl;
-    }
-
-    $urlCount = count($tourismUrls);
-
-    $curlArr = array();
-    $master = curl_multi_init();
-
-    for($i = 0; $i < $urlCount; $i++)
-    {
-        $url = $tourismUrls[$i];
-        $curlArr[$i] = curl_init($url);
-        curl_setopt($curlArr[$i], CURLOPT_RETURNTRANSFER, true);
-        curl_multi_add_handle($master, $curlArr[$i]);
-    }
-
-    do {
-        curl_multi_exec($master, $running);
-        curl_multi_select($master);
-    } while ($running > 0);
-
-    for($i = 0; $i < $urlCount; $i++)
-    {
-        $tourismResults[] = curl_multi_getcontent  ( $curlArr[$i]  );
-    }
-    
-    $tourism = [];
-    for($i = 0; $i < $urlCount; $i++) {
-        ${"variable$i"} = json_decode($tourismResults[$i], true);
-        $tourism[] = ${"variable$i"};
-    }    
-
     // restCountries 
     $url = 'https://restcountries.eu/rest/v2/alpha/' . $alpha;
 
@@ -194,7 +277,33 @@
 
 	curl_close($ch);
 
-	$currency = json_decode($result,true);
+    $currency = json_decode($result,true);
+    
+    // weather 3 day forecast
+    for($i = 0; $i < count($coords); $i++) {
+        if($coords[$i]['CountryCode'] === $alpha) {
+            $capLat = $coords[$i]['CapitalLatitude'];
+            $capLng = $coords[$i]['CapitalLongitude'];
+        }
+    }
+
+    $url = 'https://api.openweathermap.org/data/2.5/onecall?lat=' . $capLat . '&lon=' . $capLng . '&units=metric&exclude=current,minutely,hourly,alerts&appid=63df060eaace2012a0cb1f7cc925ad64';
+
+    $ch = curl_init();
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_URL,$url);
+
+	$result=curl_exec($ch);
+
+	curl_close($ch);
+
+    $forecast = json_decode($result,true);
+
+    // second yelp request (2 of 2)
+    $landmarks2 = yelpApi($landmarksUrls2);
+
+    $landmarks = array_merge($landmarks1, $landmarks2);
 
     // output
 	$output['status']['code'] = "200";
@@ -210,8 +319,10 @@
     $output['weather'] = $weather;
     $output['cities'] = $citiesArray;
     $output['tourism'] = $tourism;
+    $output['landmarks'] = $landmarks;
     $output['rest'] = $rest;
     $output['currency'] = $currency;
+    $output['forecast'] = $forecast;
 	
 	header('Content-Type: application/json; charset=UTF-8');
 
