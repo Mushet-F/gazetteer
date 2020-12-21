@@ -107,7 +107,6 @@ html, body {
 }
 
 /* Select Dropdown */
-/* The container must be positioned relative: */
 .custom-select {
   background-color: #45A292;
   color: white;
@@ -196,10 +195,21 @@ hr {
   margin-bottom: 5px;
 }
 
-/* Photos */
-.infopop h4 {
-  font: 14px/16px Arial, Helvetica, sans-serif;
-  font-weight: bold;
-  margin: 0 0 0px;
-  color: #777;
+/* Modal Table */
+.modal-tablebody {
+  background-color: #45A292;
+  color: #fff;
+  border: 1px solid #45A292;
+}
+
+.table th, .table td {
+  border-top: 1px solid #45A292;
+  padding-right: 0.75rem;
+  padding-left: 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.table th {
+  width: 40%;
 }

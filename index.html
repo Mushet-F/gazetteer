@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Gazetteer Airports LeafletJS/PHP/AJAX/JSON/cURL">
+    <meta name="description" content="Gazetteer LeafletJS/PHP/AJAX/JSON/cURL">
     <meta name="author" content="Fraser Mushet">
+    <meta name="theme-color" content="#0B0C10">
 
     <title>Gazetteer</title>
 
@@ -14,9 +15,16 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="vendors/fontawesome/css/all.min.css">
 
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/world-map-192x192.png">
+
     <!-- Leaflet -->
     <link rel="stylesheet" href="vendors/leaflet/leaflet.css">
+    <link rel="stylesheet" href="vendors/leaflet/MarkerCluster.css">
+    <link rel="stylesheet" href="vendors/leaflet/MarkerCluster.Default.css">
     <script src="vendors/leaflet/leaflet.js"></script>
+    <script src="vendors/leaflet/leaflet.markercluster.js"></script>
 
     <link rel="icon" href="favicon.ico"/>
     <link rel="stylesheet" href="css/index.css">
@@ -34,7 +42,6 @@
           <select class="form-control custom-select" id="countryList" name="countryList">
           </select> 
         </div>  
-
       </nav>
 
       <!-- Modal -->
@@ -46,20 +53,90 @@
             </div>
             <div class="modal-body">
               <h1>Country Details</h1>
-              <p>Name: <span id="country"></span></p>
-              <p>Native Name: <span id="nativeName"></span> </p>
-              <p>Native Language: <span id="nativeLang"></span></p>
-              <p>Demonym: <span id="demonym"></span></p>
-              <p>Capital: <span id="capital"></span></p>
-              <p>Population: <span id="population"></span></p>
-              <p>Region: <span id="region"></span></p>
-              <p>Subregion: <span id="subregion"></span></p>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Name</th>
+                    <td class="modal-tablebody" colspan="2"><span id="country"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Native Name</th>
+                    <td class="modal-tablebody" colspan="2"><span id="nativeName"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Native Language</th>
+                    <td class="modal-tablebody" colspan="2"><span id="nativeLang"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Demonym</th>
+                    <td class="modal-tablebody" colspan="2"><span id="demonym"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Capital</th>
+                    <td class="modal-tablebody" colspan="2"><span id="capital"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Population</th>
+                    <td class="modal-tablebody" colspan="2"><span id="population"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Region</th>
+                    <td class="modal-tablebody" colspan="2"><span id="region"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Subregion</th>
+                    <td class="modal-tablebody" colspan="2"><span id="subregion"></span></td>
+                  </tr>
+                </tbody>
+              </table>
               <hr>
               <h1>Currency</h1>
-              <p>Currency: <span id="currency"></span></p>
-              <p>Currency Code: <span id="currencyCode"></span></p>
-              <p>Currency Symbol: <span id="currencySymbol"></span></p>
-              <p>Exchange Rate (USD): <span id="exchangeRate"></span></p>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Currency</th>
+                    <td class="modal-tablebody" colspan="2"><span id="currency"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Currency Code</th>
+                    <td class="modal-tablebody" colspan="2"><span id="currencyCode"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Currency Symbol</th>
+                    <td class="modal-tablebody" colspan="2"><span id="currencySymbol"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Exchange Rate (USD)</th>
+                    <td class="modal-tablebody" colspan="2"><span id="exchangeRate"></span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <hr>
+              <h1>Covid-19 Statistics</h1>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Confirmed</th>
+                    <td class="modal-tablebody" colspan="2"><span id="confirmed"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Critical</th>
+                    <td class="modal-tablebody" colspan="2"><span id="critical"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Deaths</th>
+                    <td class="modal-tablebody" colspan="2"><span id="deaths"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Recovered</th>
+                    <td class="modal-tablebody" colspan="2"><span id="recovered"></span></td>
+                  </tr>
+                  <tr>
+                    <th class="modal-tablebody" scope="row">Last Update</th>
+                    <td class="modal-tablebody" colspan="2"><span id="lastUpdate"></span></td>
+                  </tr>
+                </tbody>
+              </table>
               <hr>
               <h1>Weather Forecast</h1>
               <p><span id="weatherCapital"></span></p>

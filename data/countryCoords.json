@@ -1817,11 +1817,11 @@
   },
   {
   "CountryName": "United States",
-  "CapitalName": "Washington",
-  "CapitalLatitude": " D.C.",
-  "CapitalLongitude": "38.883333",
-  "CountryCode": "-77.000000",
-  "ContinentName": "US"
+  "CapitalName": "Washington D.C.",
+  "CapitalLatitude": "38.883333",
+  "CapitalLongitude": "-77.000000",
+  "CountryCode": "US",
+  "ContinentName": "North America"
   },
   {
   "CountryName": "Uruguay",

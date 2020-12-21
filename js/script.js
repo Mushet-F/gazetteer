@@ -88,6 +88,7 @@ $('.infobtn').css({ 'font-size' : '5rem'});
 // **************************************************************************************** //
 
 // ********************** loader ********************************************************** //
+
 let active = true;
 
 function loader() {
@@ -104,6 +105,7 @@ function loader() {
 // **************************************************************************************** //
 
 // ********************** Select weather map ********************************************** //
+
 let myWeatherLayer;
 let initialLayerCount = 0;
 
@@ -129,6 +131,7 @@ $( "#weather" ).change(function() {
 // **************************************************************************************** //
 
 // ********************** Custom Markers ************************************************** //
+
 const LeafIcon = L.Icon.extend({
     options: {
         iconSize:     [32, 47],
@@ -147,7 +150,32 @@ L.icon = function (options) {
 
 // **************************************************************************************** //
 
+// ********************** Cluster Markers ************************************************* //
+
+let markers;
+let markersLayer = false;
+
+function clusterMarkers(airportLayer, cityLayer, landmarkLayer) {
+
+    if (markersLayer) {
+        map.removeLayer(markers);
+    }
+
+    markersLayer = true;
+
+    markers = L.markerClusterGroup();
+
+    markers.addLayer(airportLayer);
+    markers.addLayer(cityLayer);
+    markers.addLayer(landmarkLayer);
+
+    map.addLayer(markers);
+}
+
+// **************************************************************************************** //
+
 // ******************** Calling getData *************************************************** //
+
 let init = true;
 const getData = async (lat, lng) => {
 
@@ -193,6 +221,7 @@ function createCountryList(dropdown) {
 // **************************************************************************************** //
 
 // ********************** worldBorders and event handling   ******************************* //
+
 function style() {
     return {
         fillColor: '#45A292',
@@ -244,6 +273,7 @@ function worldBorders(borders) {
 // **************************************************************************************** //
 
 // ********************** updatePane of selected country  ********************************* //
+
 let countryBorders;
 let updateCount = 0;
 
@@ -312,7 +342,6 @@ const createAirportGeoJson = (airports) => {
 
 }
 
-
 // **************************************************************************************** //
 
 // ******************** Create weather array ********************************************** //
@@ -345,18 +374,9 @@ const createWeatherArray = weather => {
 
 // **************************************************************************************** //
 
-// ********* Add markers and popup content for the aiport and weather data  *************** //
-    
-let airportLayer;
-let removeAirportLayer = false;
+// ********* Add markers and popup content for the aiport layer  ************************** //
 
-function addAirportLayer(geoJson, weatherArray) {
-
-    if (removeAirportLayer) {
-        map.removeLayer(airportLayer);
-    }
-
-    removeAirportLayer = true;
+const createAirportLayer = (geoJson, weatherArray) => {
 
     let arrayCount = 0;
     
@@ -412,7 +432,9 @@ function addAirportLayer(geoJson, weatherArray) {
 
             arrayCount++
         }
-    }).addTo(map);
+    });
+
+    return airportLayer;
 
 }
 
@@ -453,12 +475,12 @@ const createCitiesGeoJson = cities => {
 
 // *********************** attractionsArray ********************************************** //
 
-const createTourismArray = (tourism, countryCode, citiesName) => {
+const createCityInfoArray = (cityInfo, countryCode, citiesName) => {
 
-    let tourismObj = {};
-    let tourismArray = [];
+    let cityInfoObj = {};
+    let cityInfoArray = [];
 
-    for(let i = 0; i < tourism.length; i++) {
+    for(let i = 0; i < cityInfo.length; i++) {
 
         let cityName;
         let summary;
@@ -466,9 +488,9 @@ const createTourismArray = (tourism, countryCode, citiesName) => {
         
         let jump = false;
         
-        if(tourism[i] !== null) {
+        if(cityInfo[i] !== null) {
 
-            for(key in tourism[i]) {
+            for(key in cityInfo[i]) {
                 if(key === 'status') {
                     jump = true;
                 }
@@ -479,18 +501,18 @@ const createTourismArray = (tourism, countryCode, citiesName) => {
                 continue;
             }
 
-            for(let j = 0; j < tourism[i].geonames.length; j++) {
-                if(tourism[i].geonames[j].title === citiesName[i]) {
-                    cityName = tourism[i].geonames[j].title;
-                    summary = tourism[i].geonames[j].summary;
+            for(let j = 0; j < cityInfo[i].geonames.length; j++) {
+                if(cityInfo[i].geonames[j].title === citiesName[i]) {
+                    cityName = cityInfo[i].geonames[j].title;
+                    summary = cityInfo[i].geonames[j].summary;
                 }
     
-                if(tourism[i].geonames[j].feature === 'landmark' && landmarks.length < 3 && tourism[i].geonames[j].countryCode === countryCode) {
-                    landmarks.push(tourism[i].geonames[j].title);
+                if(cityInfo[i].geonames[j].feature === 'landmark' && landmarks.length < 3 && cityInfo[i].geonames[j].countryCode === countryCode) {
+                    landmarks.push(cityInfo[i].geonames[j].title);
                 }
             }
     
-            tourismObj = {
+            cityInfoObj = {
                 city: cityName,
                 summary: summary,
                 landmark1: landmarks[0],
@@ -498,29 +520,20 @@ const createTourismArray = (tourism, countryCode, citiesName) => {
                 landmarks3: landmarks[2]
             }
     
-            tourismArray.push(tourismObj);    
+            cityInfoArray.push(cityInfoObj);    
         }
 
     }
 
-    return tourismArray;
+    return cityInfoArray;
 
 }
 
 // **************************************************************************************** //
 
-// ********* Add markers and popup content for the city and tourism data  ***************** //
+// ********* Add markers and popup content for the city and cityInfo data  ***************** //
 
-let cityLayer;
-let removeCityLayer = false;
-
-function addCityLayer(geoJson, tourismArray) {
-
-    if (removeCityLayer) {
-        map.removeLayer(cityLayer);
-    }
-
-    removeCityLayer = true;
+const createCityLayer = (geoJson, cityInfoArray) => {
 
     let arrayCount = 0;
     
@@ -541,13 +554,13 @@ function addCityLayer(geoJson, tourismArray) {
                 }  
             }
 
-            for (let key in tourismArray[arrayCount]) {
+            for (let key in cityInfoArray[arrayCount]) {
                 if(key === 'summary') {
-                    addAttractionsArray.push(key + ": " + tourismArray[arrayCount][key]);
+                    addAttractionsArray.push(key + ": " + cityInfoArray[arrayCount][key]);
                 }
                 if(key.includes('landmark')) {
-                    if(tourismArray[arrayCount][key] !== undefined) {
-                        addAttractionsArray.push("Landmark: " + tourismArray[arrayCount][key]);
+                    if(cityInfoArray[arrayCount][key] !== undefined) {
+                        addAttractionsArray.push("Landmark: " + cityInfoArray[arrayCount][key]);
                     }
                 }
             }
@@ -559,7 +572,9 @@ function addCityLayer(geoJson, tourismArray) {
 
             arrayCount++
         }
-    }).addTo(map);
+    });
+
+    return cityLayer;
 
 }
 
@@ -642,15 +657,7 @@ const starRatings = rating => {
 
 // ********* Add markers and popup content for the landmarks ****************************** //
 
-let landmarkLayer;
-let removeLandmarkLayer = false;
-
-function addLandmarksLayer(geoJson) {
-    if (removeLandmarkLayer) {
-        map.removeLayer(landmarkLayer);
-    }
-
-    removeLandmarkLayer = true;
+const createLandmarkLayer = geoJson => {
     
     landmarkLayer = new L.geoJson(geoJson, {
         pointToLayer: function (feature, latlng) {
@@ -673,7 +680,9 @@ function addLandmarksLayer(geoJson) {
             layer.bindPopup(popupContent.join("<p>"));
 
         }
-    }).addTo(map);
+    });
+
+    return landmarkLayer;
 
 }
 
@@ -681,7 +690,7 @@ function addLandmarksLayer(geoJson) {
 
 // ********************** Update sidebar  ************************************************* //
 
-function updateModal(restCountries, currency, forecast) {
+function updateModal(restCountries, currency, forecast, covid) {
 
     // country details
     $('#flag').attr('src', restCountries['flag']);
@@ -701,6 +710,20 @@ function updateModal(restCountries, currency, forecast) {
     $('#currencyCode').html(restCountries['currencies'][0]['code']);
     $('#currencySymbol').html(restCountries['currencies'][0]['symbol']);
     $('#exchangeRate').html(currency['rates'][currencyCode]);
+
+    // covid
+    let covidDate = covid[0]['lastUpdate'];
+    let year = covidDate.slice(0, 4);
+    let month = covidDate.slice(5, 7);
+    let day = covidDate.slice(8, 10);
+    let time = covidDate.slice(11, 16);
+    let lastUpdate = day + "/" + month + "/" + year + " " + time;
+
+    $('#confirmed').html(covid[0]['confirmed']);
+    $('#critical').html(covid[0]['critical']);
+    $('#deaths').html(covid[0]['deaths']);
+    $('#recovered').html(covid[0]['recovered']);
+    $('#lastUpdate').html(lastUpdate);
 
     // weather forecast 
     const date1 = new Date(forecast['daily'][0]['dt'] * 1000);
@@ -750,9 +773,10 @@ function updateModal(restCountries, currency, forecast) {
 
 // **************************************************************************************** //
 
+// ********************** Intialise current location ************************************** //
+
 let countryCoords;
 
-// ********************** Intialise current location ************************************** //
 function geoInit() {
 
     async function success(position) {
@@ -760,7 +784,11 @@ function geoInit() {
         let lng =  await position.coords.longitude;
 
         const result = await getData(lat, lng);
-        console.log(result);
+
+        if(result.type === 'body_of_water') {
+            loader();
+            return null;
+        }
 
         const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
@@ -782,9 +810,9 @@ function geoInit() {
         const weather = result.weather; 
         const weatherArray = createWeatherArray(weather);
         
-        addAirportLayer(airportGeoJson, weatherArray);
+        const airportLayer = createAirportLayer(airportGeoJson, weatherArray);
 
-        // Cities and tourism details 
+        // Cities and city details 
         const cities = result.cities;
         const citiesGeoJson =  createCitiesGeoJson(cities);
 
@@ -793,26 +821,27 @@ function geoInit() {
             citiesName.push(citiesGeoJson.features[key].properties.name);
         }
     
-        const tourism = result.tourism;
-        const tourismArray = createTourismArray(tourism, countryCode, citiesName);
+        const cityInfo = result.cityInfo;
+        const cityInfoArray = createCityInfoArray(cityInfo, countryCode, citiesName);
     
-        addCityLayer(citiesGeoJson, tourismArray);
+        const cityLayer = createCityLayer(citiesGeoJson, cityInfoArray);
 
         // Landmarks
         const landmarks = result.landmarks;
         const landmarksGeoJson = createLandmarksGeoJson(landmarks, countryCode);
 
-        addLandmarksLayer(landmarksGeoJson);
+        const landmarkLayer = createLandmarkLayer(landmarksGeoJson);
+
+        // Add cluster markers
+        clusterMarkers(airportLayer, cityLayer, landmarkLayer);
 
         // Modal Information
         const rest = result.rest;
         const currency = result.currency;
+        const covid = result.covid;
         const forecast = result.forecast;
 
-        updateModal(rest, currency, forecast);
-
-        // Photos
-
+        updateModal(rest, currency, forecast, covid);
 
         loader();
     }
@@ -845,7 +874,12 @@ map.on('click', async function(e){
     let lng = coord.lng;
 
     const result = await getData(lat, lng);
-    console.log(result);
+
+    if(result.type === 'body_of_water') {
+        loader();
+        return null;
+    }
+
     const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
     // Borders
@@ -859,7 +893,7 @@ map.on('click', async function(e){
     const weather = result.weather; 
     const weatherArray = createWeatherArray(weather);
     
-    addAirportLayer(airportGeoJson, weatherArray);
+    const airportLayer = createAirportLayer(airportGeoJson, weatherArray);
 
     // Cities and Landmarks 
     const cities = result.cities;
@@ -870,23 +904,27 @@ map.on('click', async function(e){
         citiesName.push(citiesGeoJson.features[key].properties.name);
     }
 
-    const tourism = result.tourism;
-    const tourismArray = createTourismArray(tourism, countryCode, citiesName);
+    const cityInfo = result.cityInfo;
+    const cityInfoArray = createCityInfoArray(cityInfo, countryCode, citiesName);
 
-    addCityLayer(citiesGeoJson, tourismArray);
+    const cityLayer = createCityLayer(citiesGeoJson, cityInfoArray);
 
     // Landmarks
     const landmarks = result.landmarks;
     const landmarksGeoJson = createLandmarksGeoJson(landmarks, countryCode);
 
-    addLandmarksLayer(landmarksGeoJson);
+    const landmarkLayer = createLandmarkLayer(landmarksGeoJson);
+
+    // Add cluster markers
+    clusterMarkers(airportLayer, cityLayer, landmarkLayer);
     
     // Modal Information
     const rest = result.rest;
     const currency = result.currency;
+    const covid = result.covid;
     const forecast = result.forecast;
 
-    updateModal(rest, currency, forecast);
+    updateModal(rest, currency, forecast, covid);
 
     loader();
 
@@ -895,6 +933,7 @@ map.on('click', async function(e){
 // **************************************************************************************** //
 
 // *********************** Country select ************************************************* //
+
 $('#countryList').change(async function() {
 
     loader();
@@ -912,7 +951,6 @@ $('#countryList').change(async function() {
     }
 
     const result = await getData(lat, lng);
-    console.log(result);
 
     const countryCode = result['opencage']['results'][0]['components']['ISO_3166-1_alpha-2'];
 
@@ -927,7 +965,7 @@ $('#countryList').change(async function() {
     const weather = result.weather; 
     const weatherArray = createWeatherArray(weather);
     
-    addAirportLayer(airportGeoJson, weatherArray);
+    const airportLayer = createAirportLayer(airportGeoJson, weatherArray);
 
     // Cities and Landmarks 
     const cities = result.cities;
@@ -938,25 +976,30 @@ $('#countryList').change(async function() {
         citiesName.push(citiesGeoJson.features[key].properties.name);
     }
 
-    const tourism = result.tourism;
-    const tourismArray = createTourismArray(tourism, countryCode, citiesName);
+    const cityInfo = result.cityInfo;
+    const cityInfoArray = createCityInfoArray(cityInfo, countryCode, citiesName);
 
-    addCityLayer(citiesGeoJson, tourismArray);
+    const cityLayer = createCityLayer(citiesGeoJson, cityInfoArray);
 
     // Landmarks
     const landmarks = result.landmarks;
     const landmarksGeoJson = createLandmarksGeoJson(landmarks, countryCode);
 
-    addLandmarksLayer(landmarksGeoJson);
+    const landmarkLayer = createLandmarkLayer(landmarksGeoJson);
+
+    // Add cluster markers
+    clusterMarkers(airportLayer, cityLayer, landmarkLayer);
     
     // Modal Information
     const rest = result.rest;
     const currency = result.currency;
+    const covid = result.covid;
     const forecast = result.forecast;
 
-    updateModal(rest, currency, forecast);
+    updateModal(rest, currency, forecast, covid);
 
     loader();
 
 });
+
 // **************************************************************************************** //

@@ -1,0 +1,20 @@
+{
+    "name": "Gazetteer by Fraser",
+    "short_name": "Gazetteer",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#45A292 ",
+    "background_color": "#0B0C10",
+    "icons": [
+      {
+        "src": "img/world-map-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "img/world-map-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+}
