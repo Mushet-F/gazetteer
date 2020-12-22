@@ -564,9 +564,14 @@ const createCityLayer = (geoJson, cityInfoArray) => {
             let count = 0;
             let summary;
             let link;
+            console.log(cityInfoArray);
             for (let key in cityInfoArray[arrayCount]) {
+                if(cityInfoArray[arrayCount][key] === undefined) {
+                    continue;
+                }
                 if(key === 'summary' || key === 'wikipediaUrl') {
                     if(key === 'summary') {
+                        console.log(cityInfoArray[arrayCount][key]);
                         summary = cityInfoArray[arrayCount][key].slice(0, -5);
                         count++;
                     }
@@ -579,9 +584,7 @@ const createCityLayer = (geoJson, cityInfoArray) => {
                     }
                 }
                 if(key.includes('landmark')) {
-                    if(cityInfoArray[arrayCount][key] !== undefined) {
                         addAttractionsArray.push("Landmark: " + cityInfoArray[arrayCount][key]);
-                    }
                 }
             }
 
@@ -894,6 +897,7 @@ map.on('click', async function(e){
     let lng = coord.lng;
 
     const result = await getData(lat, lng);
+    console.log(result);
 
     if(result.type === 'body_of_water') {
         loader();
