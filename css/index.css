@@ -20,14 +20,14 @@ html, body {
   margin: 0;
 }
 
-/* Side Nav */
-.flag {
-  max-width: 80%;
-  height: auto;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+/* Layer Control */
+.leaflet-retina .leaflet-control-layers-toggle {
+  background-image: url('../img/layers.png');
+}
 
+/* Info icon */
+.fa-info-circle{
+  color: #45A292;
 }
 
 /* Navbar */
@@ -39,6 +39,37 @@ html, body {
   .form-control {
     margin-left: 40px;
   }
+}
+
+.bg-dark {
+  background-color: #0B0C10 !important;
+}
+
+.navbar-dark .navbar-brand {
+  color: #66FCF1;
+}
+
+.fa-bars {
+  color: #66FCF1;
+}
+
+/* Select Dropdown */
+.custom-select {
+  background-color: #45A292;
+  color: white;
+  border: white;
+}
+
+select > option {
+  background-color: #45A292;
+  color: white;
+  border: white;
+}
+
+.form-control:focus {
+  background-color: #45A292;
+  color: white;
+  border: white;
 }
 
 /* Popup Content  */
@@ -60,6 +91,89 @@ html, body {
 
 .custom-popup .leaflet-popup-content-wrapper p span{
   text-transform: lowercase;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background-color: #1F2733;
+}
+
+.custom-popup .leaflet-popup-content-wrapper a{
+  color: #66FCF1;
+}
+
+.popupimg {
+  width: 200px;
+  height: 200px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* Modal */
+.modal-header {
+  background-color: #45A292;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-body {
+  background-color: #45A292;
+  max-height: 53vh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  background-color: #45A292;
+}
+
+.modal-body p {
+  color: #fff;
+}
+
+.btn-secondary {
+  color: #fff;
+  background-color: #0B0C10;
+  border-color: #0B0C10;
+}
+
+.temp {
+  margin: auto;
+  padding-left: 0px;
+}
+
+.weather-desc {
+  text-transform: capitalize;
+  margin: auto;
+}
+
+.weather-left {
+  padding-left: 5px;
+  padding-right: 25px;
+}
+
+h1 {
+  color: #66FCF1;
+}
+
+hr {
+  border-top: 1px solid #fff;
+}
+
+/* Modal Table */
+.modal-tablebody {
+  background-color: #45A292;
+  color: #fff;
+  border: 1px solid #45A292;
+}
+
+.table th, .table td {
+  border-top: 1px solid #45A292;
+  padding-right: 0.75rem;
+  padding-left: 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.table th {
+  width: 40%;
 }
 
 /* loader */
@@ -104,112 +218,4 @@ html, body {
   -webkit-transform: rotate(360deg);
   transform: rotate(360deg);
   }
-}
-
-/* Select Dropdown */
-.custom-select {
-  background-color: #45A292;
-  color: white;
-  border: white;
-}
-
-.bg-dark {
-  background-color: #0B0C10 !important;
-}
-
-.navbar-dark .navbar-brand {
-  color: #66FCF1;
-}
-
-.fa-bars {
-  color: #66FCF1;
-}
-
-select > option {
-  background-color: #45A292;
-  color: white;
-  border: white;
-}
-
-.form-control:focus {
-  background-color: #45A292;
-  color: white;
-  border: white;
-}
-
-.fa-info-circle{
-  color: #45A292;
-}
-
-/* Modal */
-.modal-header {
-  background-color: #45A292;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.modal-body {
-  background-color: #45A292;
-}
-
-.modal-footer {
-  background-color: #45A292;
-}
-
-.modal-body p {
-  color: #fff;
-}
-
-.btn-secondary {
-  color: #fff;
-  background-color: #0B0C10;
-  border-color: #0B0C10;
-}
-
-.temp {
-  margin: auto;
-  padding-left: 0px;
-}
-
-.weather-desc {
-  text-transform: capitalize;
-  margin: auto;
-}
-
-.weather-left {
-  padding-left: 5px;
-  padding-right: 25px;
-}
-
-h1 {
-  color: #66FCF1;
-}
-
-hr {
-  border-top: 1px solid #fff;
-}
-
-.popupimg {
-  width: 200px;
-  height: 200px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-/* Modal Table */
-.modal-tablebody {
-  background-color: #45A292;
-  color: #fff;
-  border: 1px solid #45A292;
-}
-
-.table th, .table td {
-  border-top: 1px solid #45A292;
-  padding-right: 0.75rem;
-  padding-left: 0;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
-
-.table th {
-  width: 40%;
 }

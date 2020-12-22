@@ -41,11 +41,9 @@
 
         $borders = json_decode($result,true);
 
-        // initialise
-        $init = $_POST['init'];
+        // dropdown menu
+        function createDropdown($borders) {
 
-        if($init === 'true') {
-            // dropdown menu	
             $countries = $borders['features'];
 
             $dropdown = [];
@@ -59,13 +57,17 @@
             }
             
             usort($dropdown, "cmp");
-        
+
+            return $dropdown;
+
         }
 
-        // lat and lng coords for selected dropdown country
-        $result = file_get_contents(__DIR__ . '/../data/countryCoords.json');
+        // dropdown only created once
+        $init = $_POST['init'];
 
-        $coords = json_decode($result,true);
+        if($init === 'true') {
+            $dropdown = createDropdown($borders);
+        }
 
         // cities 
         $url = 'http://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
@@ -293,7 +295,11 @@
 
         $currency = json_decode($result,true);
         
-        // weather 3 day forecast
+        // lat and lng coords of country capitals
+        $result = file_get_contents(__DIR__ . '/../data/countryCoords.json');
+
+        $coords = json_decode($result,true);
+        
         for($i = 0; $i < count($coords); $i++) {
             if($coords[$i]['CountryCode'] === $alpha) {
                 $capLat = $coords[$i]['CapitalLatitude'];
@@ -301,6 +307,7 @@
             }
         }
 
+        // 3 day weather forecast of country capital
         $url = 'https://api.openweathermap.org/data/2.5/onecall?lat=' . $capLat . '&lon=' . $capLng . '&units=metric&exclude=current,minutely,hourly,alerts&appid=63df060eaace2012a0cb1f7cc925ad64';
 
         $ch = curl_init();
@@ -342,7 +349,6 @@
         $output['borders'] = $borders;
         if($init === 'true') {
             $output['dropdown'] = $dropdown;
-            $output['coords'] = $coords;
         }
         $output['airports'] = $airports;
         $output['weather'] = $weather;
@@ -351,6 +357,7 @@
         $output['landmarks'] = $landmarks;
         $output['rest'] = $rest;
         $output['currency'] = $currency;
+        $output['coords'] = $coords;
         $output['forecast'] = $forecast;
         $output['covid'] = $covid;
         

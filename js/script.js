@@ -207,12 +207,16 @@ const getData = async (lat, lng) => {
 
 // ******************** Create the dropdown menu  ***************************************** //
 
-function createCountryList(dropdown) {
+function createCountryList(dropdown, countryCode) {
     
-    let html = "<option value='' disabled selected>Select Country</option>";
+    let html = "<option value='' disabled >Select Country</option>";
 
     for(let key in dropdown) {
-        html += "<option value=" + dropdown[key]['iso']  + ">" + dropdown[key]['name'] + "</option>"
+        if(dropdown[key]['iso'] === countryCode) {
+            html += "<option value=" + dropdown[key]['iso']  + " selected >" + dropdown[key]['name'] + "</option>";
+        } else {
+            html += "<option value=" + dropdown[key]['iso']  + ">" + dropdown[key]['name'] + "</option>";
+        }
     }
     document.getElementById("countryList").innerHTML = html;
     
@@ -473,7 +477,7 @@ const createCitiesGeoJson = cities => {
 
 // **************************************************************************************** //
 
-// *********************** attractionsArray ********************************************** //
+// *********************** createCityInfoArray ******************************************** //
 
 const createCityInfoArray = (cityInfo, countryCode, citiesName) => {
 
@@ -484,6 +488,7 @@ const createCityInfoArray = (cityInfo, countryCode, citiesName) => {
 
         let cityName;
         let summary;
+        let wikipediaUrl;
         let landmarks = [];
         
         let jump = false;
@@ -505,6 +510,7 @@ const createCityInfoArray = (cityInfo, countryCode, citiesName) => {
                 if(cityInfo[i].geonames[j].title === citiesName[i]) {
                     cityName = cityInfo[i].geonames[j].title;
                     summary = cityInfo[i].geonames[j].summary;
+                    wikipediaUrl = cityInfo[i].geonames[j].wikipediaUrl;
                 }
     
                 if(cityInfo[i].geonames[j].feature === 'landmark' && landmarks.length < 3 && cityInfo[i].geonames[j].countryCode === countryCode) {
@@ -515,6 +521,7 @@ const createCityInfoArray = (cityInfo, countryCode, citiesName) => {
             cityInfoObj = {
                 city: cityName,
                 summary: summary,
+                wikipediaUrl, wikipediaUrl,
                 landmark1: landmarks[0],
                 landmark2: landmarks[1],
                 landmarks3: landmarks[2]
@@ -554,9 +561,22 @@ const createCityLayer = (geoJson, cityInfoArray) => {
                 }  
             }
 
+            let count = 0;
+            let summary;
+            let link;
             for (let key in cityInfoArray[arrayCount]) {
-                if(key === 'summary') {
-                    addAttractionsArray.push(key + ": " + cityInfoArray[arrayCount][key]);
+                if(key === 'summary' || key === 'wikipediaUrl') {
+                    if(key === 'summary') {
+                        summary = cityInfoArray[arrayCount][key].slice(0, -5);
+                        count++;
+                    }
+                    if(key === 'wikipediaUrl') {
+                        link = 'https://' + cityInfoArray[arrayCount][key];
+                        count++;
+                    }
+                    if(count === 2) {
+                        addAttractionsArray.push("Summary: " + summary + "<a href=" + link + " target='_blank'>(...)</a>");
+                    }
                 }
                 if(key.includes('landmark')) {
                     if(cityInfoArray[arrayCount][key] !== undefined) {
@@ -798,9 +818,9 @@ function geoInit() {
 
         // Dropdown menu
         const dropdown = result.dropdown;
-        createCountryList(dropdown);
+        createCountryList(dropdown, countryCode);
 
-        // Country coords 
+        // Countries capital coords 
         countryCoords = result.coords;
 
         // Airports and Weather 
