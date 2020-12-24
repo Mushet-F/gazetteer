@@ -70,7 +70,7 @@
         }
 
         // cities 
-        $url = 'http://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
+        $url = 'https://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -94,7 +94,7 @@
         // cityInfo
         $cityInfoUrls = [];
         for($i = 0; $i < count($citiesArray); $i++) {
-            $cityInfoUrl = 'http://api.geonames.org/wikipediaSearchJSON?formatted=true&q=' . $citiesArray[$i]['name'] . '&maxRows=20&username=mushetf&style=full';
+            $cityInfoUrl = 'https://api.geonames.org/wikipediaSearchJSON?formatted=true&q=' . $citiesArray[$i]['name'] . '&maxRows=20&username=mushetf&style=full';
             $cityInfoUrls[] = $cityInfoUrl;
         }
 
@@ -233,7 +233,7 @@
         // weather
         $weatherurls = [];
         for($i = 0; $i < count($latArray); ++$i) {
-            $weatherurl = 'http://api.openweathermap.org/data/2.5/weather?units=metric&lat=' . $latArray[$i] .'&lon=' . $lngArray[$i] .'&appid=63df060eaace2012a0cb1f7cc925ad64';
+            $weatherurl = 'https://api.openweathermap.org/data/2.5/weather?units=metric&lat=' . $latArray[$i] .'&lon=' . $lngArray[$i] .'&appid=63df060eaace2012a0cb1f7cc925ad64';
 
             $weatherurls[] = $weatherurl;
         }
