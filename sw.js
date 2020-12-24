@@ -1,4 +1,3 @@
-const cacheName = "Gazetteer";
 const staticAssets = [
     './',
     './index.html',
@@ -13,6 +12,7 @@ const staticAssets = [
     './img/landmark.png',
     './img/world-map-192x192.png',
     './img/world-map-512x512.png',
+    './img/layers.png',
     './js/script.js',
     './php/getData.php',
     './vendors/bootstrap/css/bootstrap.min.css',
@@ -22,7 +22,6 @@ const staticAssets = [
     './vendors/fontawesome/css/all.min.css',
     './vendors/fontawesome/webfonts/fa-solid-900.woff2',
     './vendors/jquery/jquery-2.2.3.min.js',
-    './vendors/leaflet/images/layers-2x.png',
     './vendors/leaflet/leaflet.css',
     './vendors/leaflet/leaflet.js',
     './vendors/leaflet/leaflet.js.map',

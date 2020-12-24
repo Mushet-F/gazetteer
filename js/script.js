@@ -2,27 +2,27 @@
 // OpenWeatherMaps overlay options
 const clouds = L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
     maxZoom: 19,
-    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+    attribution: 'Map data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
 });
 
 const precipitation = L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
     maxZoom: 19,
-    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+    attribution: 'Map data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
 });
 
 const pressure = L.tileLayer('https://tile.openweathermap.org/map/pressure_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
     maxZoom: 19,
-    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+    attribution: 'Map data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
 });
 
 const temp = L.tileLayer('https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
     maxZoom: 19,
-    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+    attribution: 'Map data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
 });
 
 const wind = L.tileLayer('https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
     maxZoom: 19,
-    attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+    attribution: 'Map data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
 });
 
 const weatherMaps = {
@@ -122,7 +122,7 @@ $( "#weather" ).change(function() {
         initialLayerCount = 1;
         myWeatherLayer = L.tileLayer('https://tile.openweathermap.org/map/' + selWeatherLayer + '_new/{z}/{x}/{y}.png?appid=63df060eaace2012a0cb1f7cc925ad64', {
             maxZoom: 19,
-            attribution: 'Map data &copy; <a href="http://openweathermap.org">OpenWeatherMap</a>',
+            attribution: 'Map data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>',
         });
         myWeatherLayer.addTo(map);
     }
@@ -759,13 +759,13 @@ function updateModal(restCountries, currency, forecast, covid) {
     const day3 = date3.getDay();
 
     const icon1 = forecast['daily'][0]['weather'][0]['icon'];  
-    const iconSrc1 = "http://openweathermap.org/img/wn/" + icon1 +"@2x.png";
+    const iconSrc1 = "https://openweathermap.org/img/wn/" + icon1 +"@2x.png";
 
     const icon2 = forecast['daily'][1]['weather'][0]['icon'];  
-    const iconSrc2 = "http://openweathermap.org/img/wn/" + icon2 +"@2x.png";
+    const iconSrc2 = "https://openweathermap.org/img/wn/" + icon2 +"@2x.png";
 
     const icon3 = forecast['daily'][2]['weather'][0]['icon'];  
-    const iconSrc3 = "http://openweathermap.org/img/wn/" + icon3 +"@2x.png";
+    const iconSrc3 = "https://openweathermap.org/img/wn/" + icon3 +"@2x.png";
 
     $('#weatherCapital').html(restCountries['capital']);
 
@@ -1023,5 +1023,17 @@ $('#countryList').change(async function() {
     loader();
 
 });
+
+// **************************************************************************************** //
+
+// *********************** Register serviceWorker ***************************************** //
+
+if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("sw.js").then(registration => {
+
+    }).catch(error => {
+
+    });
+}
 
 // **************************************************************************************** //
