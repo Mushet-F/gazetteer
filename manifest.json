@@ -3,7 +3,7 @@
     "short_name": "Gazetteer",
     "start_url": ".",
     "display": "standalone",
-    "theme_color": "#45A292 ",
+    "theme_color": "#45A292",
     "background_color": "#0B0C10",
     "icons": [
       {
