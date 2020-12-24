@@ -70,7 +70,7 @@
         }
 
         // cities 
-        $url = 'https://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
+        $url = 'http://api.geonames.org/searchJSON?country=' . $alpha . '&maxRows=15&username=mushetf';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -94,7 +94,7 @@
         // cityInfo
         $cityInfoUrls = [];
         for($i = 0; $i < count($citiesArray); $i++) {
-            $cityInfoUrl = 'https://api.geonames.org/wikipediaSearchJSON?formatted=true&q=' . $citiesArray[$i]['name'] . '&maxRows=20&username=mushetf&style=full';
+            $cityInfoUrl = 'http://api.geonames.org/wikipediaSearchJSON?formatted=true&q=' . $citiesArray[$i]['name'] . '&maxRows=20&username=mushetf&style=full';
             $cityInfoUrls[] = $cityInfoUrl;
         }
 
