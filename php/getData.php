@@ -282,7 +282,7 @@
         $rest = json_decode($result,true);	
         
         // currency 
-        $url = 'https://openexchangerates.org/api/latest.json?app_id=7b5e497f3d8c47d1bbe8176d285eb2df';
+        $url = 'https://openexchangerates.org/api/latest.json?app_id=67a1ccb4c62f423089214e054949aebc';
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
