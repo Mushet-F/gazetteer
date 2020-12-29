@@ -20,11 +20,6 @@ html, body {
   margin: 0;
 }
 
-/* Layer Control */
-.leaflet-retina .leaflet-control-layers-toggle {
-  background-image: url('../img/layers.png');
-}
-
 /* Info icon */
 .fa-info-circle{
   color: #45A292;

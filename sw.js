@@ -12,7 +12,6 @@ const staticAssets = [
     './img/landmark.png',
     './img/world-map-192x192.png',
     './img/world-map-512x512.png',
-    './img/layers.png',
     './js/script.js',
     './php/getData.php',
     './vendors/bootstrap/css/bootstrap.min.css',
@@ -28,7 +27,9 @@ const staticAssets = [
     './vendors/leaflet/leaflet.markercluster.js',
     './vendors/leaflet/leaflet.markercluster.js.map',
     './vendors/leaflet/MarkerCluster.css',
-    './vendors/leaflet/MarkerCluster.Default.css'
+    './vendors/leaflet/MarkerCluster.Default.css',
+    './vendors/leaflet/images/layers-2x.png',
+    './vendors/leaflet/images/layers.png'
 ];
 
 self.addEventListener('install',  e => {
